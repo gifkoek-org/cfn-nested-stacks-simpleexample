@@ -1,0 +1,32 @@
+Description: >
+  Deploys a single security group {{ TEMPLATE_PATH }}
+
+AWSTemplateFormatVersion: '2010-09-09'
+#
+# Parameters
+#
+Parameters:
+  # Cluster details
+  VpcId:
+    Type: String
+    Description: Select a VPC that allows instances access to the Internet.
+
+Resources:
+#
+# security group definitions
+#
+  SimpleSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: aacorne Simple Security Group
+      VpcId: !Ref VpcId
+      # Allow service ports
+      SecurityGroupIngress:
+        - Description: Allow access from somewhere
+          IpProtocol: tcp
+          FromPort: 22
+          ToPort: 24
+          CidrIp: 10.1.1.1/32
+      Tags:
+        - Key: Name
+          Value: aacorne-simpleSG

@@ -1,0 +1,61 @@
+Description: >
+  Deploy simple nested stack from this master
+
+# NOTES:
+# - original from https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-ecs.html
+# - ALB is created once, with host-header based rules to forward to different target groups
+# - a default target group is defined, each service deployment should set its own rule and TG on the ALB
+
+#
+# Parameters
+#
+Parameters:
+  # Tag values
+  OwnerTag:
+    Description: The team or Individual who owns this instance/resource
+    Type: String
+    Default: sysdevct
+    AllowedValues: [sysdevke, sysdevct, data-science, data-engineering, engineeringct, engineeringke, edw]
+  EnvironmentTag:
+    Description: One of Prod, Staging or Development
+    Type: String
+    Default: development
+    AllowedValues: [prod, staging, development]
+  ClassificationTag:
+    Description: One of Restricted, Confidential, Internal or Unclassified
+    Type: String
+    Default: restricted
+    AllowedValues: [restricted, confidential, internal-use-only, unclassified]
+  StatusTag:
+    Description: One of either:- Active or Deprecated
+    Type: String
+    Default: active
+    AllowedValues: [active, deprecated]
+
+  # Cluster details
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: Select a VPC
+    Default: vpc-e6349983
+
+#
+# Resources
+#
+Resources:
+  # ECS Cluster
+  Cluster:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: infrastructure/simpleSG.yaml
+      Parameters:
+        VpcId: !Ref VpcId
+      # apply tags at the stack level, so will be assigned to all resources in this stack
+      Tags:
+        - Key: Owner
+          Value: !Ref OwnerTag
+        - Key: Classification
+          Value: !Ref ClassificationTag
+        - Key: Status
+          Value: !Ref StatusTag
+        - Key: Environment
+          Value: !Ref EnvironmentTag
